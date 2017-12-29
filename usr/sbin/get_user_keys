@@ -1,0 +1,6 @@
+#!/bin/sh                                                                       
+#
+# based on:
+# https://unix.stackexchange.com/questions/260209/enable-access-via-ssh-key-without-using-ssh-authorized-keys
+KEY="/etc/ssh/keys/$1/authorized_keys"
+[ -r "$KEY" ] && cat $KEY

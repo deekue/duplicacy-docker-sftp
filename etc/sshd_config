@@ -1,0 +1,61 @@
+Port 22
+Protocol 2
+UsePrivilegeSeparation yes
+
+# SSH/SFTP is the service this container provides, keep SSH host keys somewhere
+# safe between builds/runs
+HostKey /etc/ssh/keys/ssh_host_rsa_key
+HostKey /etc/ssh/keys/ssh_host_dsa_key
+HostKey /etc/ssh/keys/ssh_host_ecdsa_key
+
+# http://www.doublecloud.org/2013/06/slow-ssh-client-and-quick-hack/
+UseDNS no
+
+KeyRegenerationInterval 3600
+ServerKeyBits 768
+
+SyslogFacility AUTH
+LogLevel INFO
+
+LoginGraceTime 120
+StrictModes yes
+TCPKeepAlive yes
+PrintMotd no
+PrintLastLog no
+
+PermitRootLogin no
+PermitUserEnvironment no
+AllowTcpForwarding no
+X11Forwarding no
+X11DisplayOffset 10
+
+# Allow auth by key only
+RSAAuthentication yes
+PubkeyAuthentication yes
+AuthenticationMethods “publickey"
+
+# keep the key hidden, keep it safe                                             
+AuthorizedKeysFile /etc/ssh/keys/%u/authorized_keys                             
+AuthorizedKeysCommand /usr/sbin/get_user_keys                                   
+AuthorizedKeysCommandUser root
+
+# Disallow all other auth methods
+IgnoreRhosts yes
+RhostsRSAAuthentication no
+HostbasedAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+PasswordAuthentication no
+GSSAPIAuthentication no
+UsePAM no
+
+Subsystem sftp internal-sftp
+
+Match Group sftpusers
+  ChrootDirectory /storage/%u
+  ForceCommand internal-sftp
+
+Match User duplicacy
+  ChrootDirectory /storage
+  ForceCommand internal-sftp
+
